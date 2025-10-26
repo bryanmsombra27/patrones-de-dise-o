@@ -12,7 +12,7 @@
  *
  */
 
-import { COLORS } from '../helpers/colors.ts';
+import { COLORS } from "../helpers/colors.ts";
 
 // 1. Interfaz Command
 interface Command {
@@ -22,8 +22,8 @@ interface Command {
 // 2. Clase Receptor - TextEditor
 
 class TextEditor {
-  private text: string = '';
-  private clipboard: string = '';
+  private text: string = "";
+  private clipboard: string = "";
   private history: string[] = [];
 
   // Agregar texto al editor
@@ -56,7 +56,7 @@ class TextEditor {
       return;
     }
 
-    console.log('No hay nada para deshacer.');
+    console.log("No hay nada para deshacer.");
   }
 
   // Mostrar el texto actual
@@ -67,18 +67,38 @@ class TextEditor {
 
 // 3. Clases de Comandos Concretos
 class CopyCommand implements Command {
+  constructor(editor: TextEditor) {
+    this.editor = editor;
+  }
+
+  execute(): void {
+    this.editor.copy();
+  }
   private editor: TextEditor;
 
   // TODO: Inyectar el editor en el constructor y el método execute con la acción respectiva
 }
 
 class PasteCommand implements Command {
+  constructor(editor: TextEditor) {
+    this.editor = editor;
+  }
+  execute(): void {
+    this.editor.paste();
+  }
   private editor: TextEditor;
 
   // TODO: Inyectar el editor en el constructor y el método execute con la acción respectiva
 }
 
 class UndoCommand implements Command {
+  constructor(editor: TextEditor) {
+    this.editor = editor;
+  }
+
+  execute(): void {
+    this.editor.undo();
+  }
   private editor: TextEditor;
 
   // TODO: Inyectar el editor en el constructor y el método execute con la acción respectiva
@@ -91,13 +111,17 @@ class Toolbar {
 
   setCommand(button: string, command: Command): void {
     // TODO: Asignar el comando al botón correspondiente
+    this.commands[button] = command;
   }
 
   clickButton(button: string): void {
+    if (!this.commands[button]) {
+      // TODO: Manejar el caso en que no haya un comando asignado al botón
+      console.error(`No hay un comando asignado al botón "${button}"`);
+      return;
+    }
     //TODO: Ejecutar el comando correspondiente al botón
-
-    // TODO: Manejar el caso en que no haya un comando asignado al botón
-    console.error(`No hay un comando asignado al botón "${button}"`);
+    this.commands[button].execute();
   }
 }
 
@@ -113,36 +137,36 @@ function main() {
   const undoCommand = new UndoCommand(editor);
 
   // Asignar comandos a los botones de la barra de herramientas
-  toolbar.setCommand('copy', copyCommand);
-  toolbar.setCommand('paste', pasteCommand);
-  toolbar.setCommand('undo', undoCommand);
+  toolbar.setCommand("copy", copyCommand);
+  toolbar.setCommand("paste", pasteCommand);
+  toolbar.setCommand("undo", undoCommand);
 
   // Simulación de edición de texto
-  editor.type('H');
-  editor.type('o');
-  editor.type('l');
-  editor.type('a');
-  editor.type(' ');
-  editor.type('M');
-  editor.type('u');
-  editor.type('n');
-  editor.type('d');
-  editor.type('o');
-  editor.type('!');
+  editor.type("H");
+  editor.type("o");
+  editor.type("l");
+  editor.type("a");
+  editor.type(" ");
+  editor.type("M");
+  editor.type("u");
+  editor.type("n");
+  editor.type("d");
+  editor.type("o");
+  editor.type("!");
   console.log(`Texto actual: %c"${editor.getText()}"`, COLORS.green);
 
   // Usar la barra de herramientas
-  console.log('\nCopiando texto:');
-  toolbar.clickButton('copy');
+  console.log("\nCopiando texto:");
+  toolbar.clickButton("copy");
 
-  console.log('\nPegando texto:');
-  toolbar.clickButton('paste');
+  console.log("\nPegando texto:");
+  toolbar.clickButton("paste");
 
-  console.log('\nDeshaciendo la última acción:');
-  toolbar.clickButton('undo');
+  console.log("\nDeshaciendo la última acción:");
+  toolbar.clickButton("undo");
 
-  console.log('\nDeshaciendo de nuevo:');
-  toolbar.clickButton('undo');
+  console.log("\nDeshaciendo de nuevo:");
+  toolbar.clickButton("undo");
 
   console.log(`\nTexto final: "${editor.getText()}"`);
 }
